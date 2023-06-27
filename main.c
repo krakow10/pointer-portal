@@ -3,6 +3,27 @@
 #include <X11/Xlib.h>
 #include <X11/extensions/XInput2.h>
 
+/* 
+a portal has two points (rx,ry) and (lx,ly) and is oriented so that it can only be entered from one side
+convoluting this with vector math saves 1 multiply operation per portal check or something ridiculous idk I wrote it in 2017
+*/
+struct portal {
+	//line info
+	int diffx;//rx-lx
+	int diffy;//ry-ly
+	float diff2;//distance between points squared
+	float diffm;//distance between points
+	int lDot;//dot(diff,l)
+	int rDot;//dot(diff,r)
+	int dDot;//dot(diff,(r+l)/2)
+	//last state information (would not be needed if mouse intent was available)
+	int pDot;//cross(vec3(cursor,0),vec3(diff,0)).z also= dot(cursor,vec2(diffy,-diffx))
+	int cDot;//dot(cursor,diff)
+	bool mouseState = true;//false=behind true=infront
+	bool mouseAlignment = false;//is the mouse between the left and right points
+	//which portal will the mouse teleport to when this portal is crossed
+	int teleportTarget;
+};
 
 int main(int argc, char const *argv[])
 {
@@ -11,30 +32,6 @@ int main(int argc, char const *argv[])
 
 	Window *root_window = XRootWindow(display, 0);
 	assert(root_window);
-			// typedef struct {
-			// 	int type;		/* MotionNotify */
-			// 	unsigned long serial;	/* # of last request processed by server */
-			// 	Bool send_event;	/* true if this came from a SendEvent request */
-			// 	Display *display;	/* Display the event was read from */
-			// 	Window window;		/* ``event'' window reported relative to */
-			// 	Window root;		/* root window that the event occurred on */
-			// 	Window subwindow;	/* child window */
-			// 	Time time;		/* milliseconds */
-			// 	int x, y;		/* pointer x, y coordinates in event window */
-			// 	int x_root, y_root;	/* coordinates relative to root */
-			// 	unsigned int state;	/* key or button mask */
-			// 	char is_hint;		/* detail */
-			// 	Bool same_screen;	/* same screen flag */
-			// } XMotionEvent;
-			// if(POINTER_DELTA_CROSSES_PORTAL_BOUNDARY){
-			// 	//math
-			// 	// Display *display;
-			// 	// Window src_w, dest_w;
-			// 	// int src_x, src_y;
-			// 	// unsigned int src_width, src_height;
-			// 	// int dest_x, dest_y;
-			// 	XWarpPointer(display, e.window, e.window, e.x, e.y, src_width, src_height, dest_x, dest_y)
-			// }
 
 	//https://askubuntu.com/questions/1348943/c-programming-detect-mouse-pointer-movement
 	/* check XInput */
@@ -105,6 +102,23 @@ int main(int argc, char const *argv[])
 			continue;
 		}
 		printf("%d,%d", win_x_return, win_y_return);
+		// int pDot = x*portalList[i].diffy - y*portalList[i].diffx;
+		// int cDot = x*portalList[i].diffx + y*portalList[i].diffy;
+		// bool mouseState = pDot >= portalList[i].dDot;//dot(Cursor,turn(diff))>=dDot
+		// bool mouseAlignment = portalList[i].lDot <= cDot&&cDot <= portalList[i].rDot;//lDot<dot(Cursor,diff)<rDot
+		// bool condition = mouseState && !portalList[i].mouseState&&portalList[i].mouseAlignment;
+		// if(condition){
+			// int j = portalList[i].teleportTarget;
+			// float tcDot = portalList[j].rDot + float(portalList[j].lDot - portalList[j].rDot)*float(portalList[i].cDot - portalList[i].lDot) / float(portalList[i].rDot - portalList[i].lDot);
+			// float tpDot = portalList[j].dDot - max(0.0f, portalList[j].diffm*float(portalList[i].pDot - portalList[i].dDot)) / portalList[i].diffm;
+			// int dest_x = int((tcDot*portalList[j].diffx + tpDot*portalList[j].diffy) / portalList[j].diff2) - sgn(portalList[j].diffy);
+			// int dest_y = int((tcDot*portalList[j].diffy - tpDot*portalList[j].diffx) / portalList[j].diff2) + sgn(portalList[j].diffx);
+		// 	// Display *display;
+		// 	// Window src_w, dest_w;
+		// 	// int src_x, src_y;
+		// 	// unsigned int src_width, src_height;
+		// 	XWarpPointer(display, e.window, e.window, e.x, e.y, src_width, src_height, dest_x, dest_y)
+		// }
 	}
 	XCloseDisplay(display);
 	return 0;
