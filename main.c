@@ -7,23 +7,23 @@
 a portal has two points (rx,ry) and (lx,ly) and is oriented so that it can only be entered from one side
 convoluting this with vector math saves 1 multiply operation per portal check or something ridiculous idk I wrote it in 2017
 */
-struct portal {
-	//line info
-	int diffx;//rx-lx
-	int diffy;//ry-ly
-	float diff2;//distance between points squared
-	float diffm;//distance between points
-	int lDot;//dot(diff,l)
-	int rDot;//dot(diff,r)
-	int dDot;//dot(diff,(r+l)/2)
-	//last state information (would not be needed if mouse intent was available)
-	int pDot;//cross(vec3(cursor,0),vec3(diff,0)).z also= dot(cursor,vec2(diffy,-diffx))
-	int cDot;//dot(cursor,diff)
-	bool mouseState = true;//false=behind true=infront
-	bool mouseAlignment = false;//is the mouse between the left and right points
-	//which portal will the mouse teleport to when this portal is crossed
-	int teleportTarget;
-};
+// struct portal {
+// 	//line info
+// 	int diffx;//rx-lx
+// 	int diffy;//ry-ly
+// 	float diff2;//distance between points squared
+// 	float diffm;//distance between points
+// 	int lDot;//dot(diff,l)
+// 	int rDot;//dot(diff,r)
+// 	int dDot;//dot(diff,(r+l)/2)
+// 	//last state information (would not be needed if mouse intent was available)
+// 	int pDot;//cross(vec3(cursor,0),vec3(diff,0)).z also= dot(cursor,vec2(diffy,-diffx))
+// 	int cDot;//dot(cursor,diff)
+// 	bool mouseState = true;//false=behind true=infront
+// 	bool mouseAlignment = false;//is the mouse between the left and right points
+// 	//which portal will the mouse teleport to when this portal is crossed
+// 	int teleportTarget;
+// };
 
 int main(int argc, char const *argv[])
 {
